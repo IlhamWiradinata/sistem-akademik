@@ -98,6 +98,7 @@
                 <input type="password" name="password_confirmation"
                        id="password_confirmation"
                        placeholder="Ulangi password baru" required>
+                       
             </div>
 
             <button type="submit" class="login-button">Reset Password</button>
