@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    margin: 20px;
+}
+h3, h4 {
+    margin: 0;
+}
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+}
+.header h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+.header p {
+    margin: 5px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+}
+table.bordered, table.bordered th, table.bordered td {
+    border: 1px solid #000;
+}
+th, td {
+    padding: 8px;
+    text-align: center;
+}
+th {
+    background-color: #e0e0e0;
+    font-weight: bold;
+}
+.identitas {
+    margin-bottom: 20px;
+}
+.identitas td {
+    border: none;
+    text-align: left;
+    padding: 4px 8px;
+}
+.identitas td:nth-child(odd) {
+    font-weight: bold;
+    width: 15%;
+}
+.identitas td:nth-child(even) {
+    width: 35%;
+}
+.section-title {
+    font-weight: bold;
+    margin: 15px 0 8px 0;
+    font-size: 13px;
+}
+.nilai-table td:nth-child(2) {
+    text-align: left;
+    padding-left: 10px;
+}
+.notes-section {
+    margin-top: 20px;
+}
+.notes-table {
+    width: 100%;
+    margin-top: 10px;
+}
+.notes-table td {
+    border: 1px solid #000;
+    vertical-align: top;
+    padding: 10px;
+    height: 80px;
+}
+.notes-table th {
+    border: 1px solid #000;
+    background-color: #e0e0e0;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+.footer {
+    margin-top: 30px;
+    text-align: right;
+    padding-right: 50px;
+}
+.footer p {
+    margin: 3px 0;
+}
+.signature-space {
+    margin-top: 60px;
+}
