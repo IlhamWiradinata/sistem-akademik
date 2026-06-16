@@ -288,7 +288,7 @@
                             {{ \Carbon\Carbon::createFromFormat('H:i:s', $j->jam_mulai)->format('H:i') }} -
                             {{ \Carbon\Carbon::createFromFormat('H:i:s', $j->jam_selesai)->format('H:i') }}
                         </div>
-                        <p class="font-weight-bold mb-1">{{ $j->mata_pelajaran->nama_mapel ?? '-' }}</p>
+                        <p class="font-weight-bold mb-1">{{ $j->mapel->nama_mapel ?? '-' }}</p>
                         <small class="text-muted">Guru: {{ $j->guru->user->name ?? '-' }}</small>
                     </div>
                     <hr>
