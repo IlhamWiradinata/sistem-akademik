@@ -22,6 +22,7 @@ class PrestasiSiswa extends Model
         'persentase_kehadiran',
         'nilai_perilaku',
         'skor_total',
+        'kategori_dt',
         'jumlah_mapel',
         'status',
     ];

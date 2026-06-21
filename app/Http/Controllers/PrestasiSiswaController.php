@@ -90,51 +90,43 @@ class PrestasiSiswaController extends Controller
     //          Bimbingan   Harapan
     // =========================================================
     private function decisionTree(float $nilai, float $hadir, float $perilaku): array
-    {
-        $nilaiOk    = $nilai    >= self::DT_NILAI_THR;
-        $hadirOk    = $hadir    >= self::DT_HADIR_THR;
-        $perilakuOk = $perilaku >= self::DT_PERILAKU_THR;
+{
+    $nilaiOk    = $nilai    >= self::DT_NILAI_THR;
+    $hadirOk    = $hadir    >= self::DT_HADIR_THR;
+    $perilakuOk = $perilaku >= self::DT_PERILAKU_THR;
 
-        // Penentuan kategori berdasarkan jalur pohon keputusan
-        if (!$nilaiOk && !$hadirOk) {
-            $kategori = self::KATEGORI_PEMBINAAN_KHUSUS;
-        } elseif (!$nilaiOk && $hadirOk) {
-            $kategori = $perilakuOk ? self::KATEGORI_SESUAI_HARAPAN : self::KATEGORI_DENGAN_BIMBINGAN;
-        } elseif ($nilaiOk && !$hadirOk) {
-            $kategori = self::KATEGORI_DENGAN_BIMBINGAN;
-        } else {
-            $kategori = $perilakuOk ? self::KATEGORI_UNGGUL : self::KATEGORI_BAIK;
-        }
-
-        // Langkah 1: hitung skor proporsional mentah (0-100)
-        // berdasarkan bobot Nilai 50%, Kehadiran 30%, Sikap 20%
-        $kontribNilai    = ($nilai    / 100) * self::BOBOT_NILAI    * 100;
-        $kontribHadir    = ($hadir    / 100) * self::BOBOT_HADIR    * 100;
-        $kontribPerilaku = ($perilaku / 100) * self::BOBOT_PERILAKU * 100;
-
-        $skorProporsional = $kontribNilai + $kontribHadir + $kontribPerilaku;
-
-        // Langkah 2: petakan skor proporsional (0-100) ke dalam
-        // rentang skor kategori, agar skor_total selalu selaras
-        // dengan predikat kategori_dt yang dihasilkan
-        [$batasBawah, $batasAtas] = self::RANGE_KATEGORI[$kategori];
-
-        $posisiRelatif = $skorProporsional / 100; // bernilai 0 s.d. 1
-        $skorDT = $batasBawah + ($posisiRelatif * ($batasAtas - $batasBawah));
-        $skorDT = round(min(max($skorDT, $batasBawah), $batasAtas), 2);
-
-        return [
-            'kategori'    => $kategori,
-            'skor_dt'     => $skorDT,
-            'nilai_ok'    => $nilaiOk,
-            'hadir_ok'    => $hadirOk,
-            'perilaku_ok' => $perilakuOk,
-        ];
+    // Penentuan kategori — tidak berubah
+    if (!$nilaiOk && !$hadirOk) {
+        $kategori = self::KATEGORI_PEMBINAAN_KHUSUS;
+    } elseif (!$nilaiOk && $hadirOk) {
+        $kategori = $perilakuOk ? self::KATEGORI_SESUAI_HARAPAN : self::KATEGORI_DENGAN_BIMBINGAN;
+    } elseif ($nilaiOk && !$hadirOk) {
+        $kategori = self::KATEGORI_DENGAN_BIMBINGAN;
+    } else {
+        $kategori = $perilakuOk ? self::KATEGORI_UNGGUL : self::KATEGORI_BAIK;
     }
+
+    // Skor proporsional murni berdasarkan bobot — tanpa rentang kategori
+    // Nilai dan kehadiran dibagi 100, perilaku sudah dalam skala 0-100
+    $skorDT = round(
+        ($nilai    / 100 * self::BOBOT_NILAI    * 100) +
+        ($hadir    / 100 * self::BOBOT_HADIR    * 100) +
+        ($perilaku / 100 * self::BOBOT_PERILAKU * 100),
+        2
+    );
+
+    return [
+        'kategori'    => $kategori,
+        'skor_dt'     => $skorDT,
+        'nilai_ok'    => $nilaiOk,
+        'hadir_ok'    => $hadirOk,
+        'perilaku_ok' => $perilakuOk,
+    ];
+}
 
     // =========================================================
     //  Bantuan: ekstraksi tingkat kelas dari nama_kelas
-    //  Contoh: "X IPA 1" → "X", "XI IPS 2" → "XI", "XII MIPA" → "XII"
+    //  Contoh: "X RPL 1" → "X", "XI TKRO 2" → "XI", "XII TKJ 1" → "XII"
     // =========================================================
     private function ekstrakTingkat(string $namaKelas): string
     {
@@ -151,7 +143,7 @@ class PrestasiSiswaController extends Controller
     // =========================================================
     private function hitungMetrik(int $siswaId, string $nis, string $semester, string $tahunAjaran): array
     {
-        // 1. Nilai rata-rata dan jumlah mata pelajaran
+        // 1. Nilai rata-rata
         $nilaiData = Nilai::where('nis', $nis)
             ->where('semester', $semester)
             ->selectRaw('AVG(rata_rata) as rata, COUNT(DISTINCT id_mata_pelajaran) as jml')
@@ -162,43 +154,44 @@ class PrestasiSiswaController extends Controller
 
         // 2. Persentase kehadiran
         $totalPertemuan = Kehadiran::where('siswa_id', $siswaId)
-            ->where('semester', $semester)
-            ->count();
+            ->where('semester', $semester)->count();
 
         $totalHadir = Kehadiran::where('siswa_id', $siswaId)
             ->where('semester', $semester)
-            ->where('status', 'Hadir')
-            ->count();
+            ->where('status', 'Hadir')->count();
 
         $pctHadir = $totalPertemuan > 0
             ? round(($totalHadir / $totalPertemuan) * 100, 2)
             : 0;
 
-        // 3. Nilai sikap/perilaku (rata-rata numerik dari predikat sikap)
-        //    Konversi: predikat huruf → nilai numerik (untuk dirata-rata)
-        $nilaiPerilaku = (float) (Nilai::where('nis', $nis)
+        // 3. Sikap: ambil huruf terbanyak dari kolom sikap, lalu konversi ke angka
+        //    Ambil modus (nilai huruf yang paling sering muncul)
+        $sikapRow = Nilai::where('nis', $nis)
             ->where('semester', $semester)
-            ->selectRaw("AVG(CASE
-                WHEN UPPER(sikap) = 'A' THEN 90
-                WHEN UPPER(sikap) = 'B' THEN 75
-                WHEN UPPER(sikap) = 'C' THEN 60
-                WHEN UPPER(sikap) = 'D' THEN 45
-                WHEN UPPER(sikap) = 'E' THEN 30
-                ELSE 60
-            END) as np")
-            ->value('np') ?? 60.0);
+            ->selectRaw('sikap, COUNT(*) as jumlah')
+            ->groupBy('sikap')
+            ->orderByDesc('jumlah')
+            ->first();
 
-        // Konversi balik: nilai numerik rata-rata → predikat huruf final
-        $sikapHuruf = $this->numericToSikapLetter($nilaiPerilaku);
+        $sikapHuruf = $sikapRow ? strtoupper($sikapRow->sikap) : 'C';
 
-        // 4. Decision tree: kategori (predikat) dan skor akhir
+        // Konversi huruf → angka untuk decision tree
+        $nilaiPerilaku = match($sikapHuruf) {
+            'A'     => 90.0,
+            'B'     => 75.0,
+            'C'     => 60.0,
+            'D'     => 45.0,
+            default => 30.0,
+        };
+
+        // 4. Decision tree
         $dt = $this->decisionTree($nilaiRataRata, $pctHadir, $nilaiPerilaku);
 
         return [
             'nilai_rata_rata'      => round($nilaiRataRata, 2),
             'jumlah_mapel'         => $jumlahMapel,
             'persentase_kehadiran' => $pctHadir,
-            'nilai_perilaku'       => round($nilaiPerilaku, 2),
+            'nilai_perilaku'       => $nilaiPerilaku,
             'sikap'                => $sikapHuruf,
             'kategori_dt'          => $dt['kategori'],
             'skor_dt'              => $dt['skor_dt'],
@@ -385,10 +378,10 @@ class PrestasiSiswaController extends Controller
                         'nilai_rata_rata'      => $data['nilai_rata_rata'],
                         'persentase_kehadiran' => $data['persentase_kehadiran'],
                         'nilai_perilaku'       => $data['nilai_perilaku'],
-                        'sikap'                => $data['sikap'],
+                        'sikap'                => $data['sikap'] ?? '-',  // tambahkan ini jika belum ada
+                        'kategori_dt'          => $data['kategori_dt'],  // pastikan ini ada
                         'skor_total'           => $data['skor_total'],
                         'jumlah_mapel'         => $data['jumlah_mapel'],
-                        'kategori_dt'          => $data['kategori_dt'],
                         'status'               => 'aktif',
                     ]);
                 }
@@ -502,19 +495,29 @@ class PrestasiSiswaController extends Controller
 
             // Untuk setiap siswa, ambil skor terbaik (jika terdaftar di lebih dari satu kelas)
             $juaraMap = [];
+            // SESUDAH
             foreach ($semuaRanking as $p) {
                 $key = $p->siswa_id;
                 if (!isset($juaraMap[$key]) || (float)$p->skor_total > $juaraMap[$key]['skor_total']) {
+
+                    // Hitung ulang kategori_dt dari metrik aktual (sama seperti prosesRankingKelas)
+                    $metrik = $this->hitungMetrik(
+                        $p->siswa_id,
+                        optional($p->siswa)->nis ?? '',
+                        $semester,
+                        $tahunAjaran
+                    );
+
                     $juaraMap[$key] = [
                         'siswa_id'             => $p->siswa_id,
                         'nis'                  => optional($p->siswa)->nis ?? '-',
                         'nama'                 => optional(optional($p->siswa)->user)->name
-                                                  ?? optional($p->siswa)->nama_lengkap
-                                                  ?? '-',
+                                                ?? optional($p->siswa)->nama_lengkap
+                                                ?? '-',
                         'kelas'                => optional($p->kelas)->nama_kelas ?? '-',
                         'kelas_id'             => $p->kelas_id,
                         'ranking_kelas'        => $p->ranking,
-                        'kategori_dt'          => $p->kategori_dt ?? '-',
+                        'kategori_dt'          => $metrik['kategori_dt'],   // hasil hitung ulang
                         'skor_total'           => (float) $p->skor_total,
                         'nilai_rata_rata'      => (float) $p->nilai_rata_rata,
                         'persentase_kehadiran' => (float) $p->persentase_kehadiran,

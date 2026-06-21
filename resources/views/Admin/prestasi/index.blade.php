@@ -507,7 +507,6 @@ $(function () {
 
         if (!ta || !tingkat) {
             $('#rankingStatusInfo').hide();
-            $('#btnJuara').prop('disabled', true);
             return;
         }
 
@@ -536,7 +535,6 @@ $(function () {
             },
             error: function () {
                 $('#rankingStatusInfo').hide();
-                $('#btnJuara').prop('disabled', true);
             }
         });
     }
@@ -572,22 +570,33 @@ $(function () {
             success: function (res) {
                 hideProgress(function () {
                     // Bangun tabel 10 besar mini
+                    // SESUDAH
+                    const warnaDT = {
+                        'Berprestasi Unggul'          : 'badge-primary',
+                        'Berprestasi Baik'            : 'badge-success',
+                        'Berkembang Sesuai Harapan'   : 'badge-info',
+                        'Berkembang dengan Bimbingan' : 'badge-warning',
+                        'Memerlukan Pembinaan Khusus' : 'badge-danger'
+                    };
+
                     let rowsHtml = '';
                     (res.data || []).forEach(function (s, idx) {
                         const peringkat = idx + 1;
-                        let badgeClass = 'badge-secondary';
-                        let label = 'Juara ' + peringkat;
-                        if (peringkat === 1) badgeClass = 'badge-warning';
-                        else if (peringkat === 2) badgeClass = 'badge-secondary';
-                        else if (peringkat === 3) badgeClass = 'badge-success';
-                        else { badgeClass = 'badge-info'; label = 'Peringkat ' + peringkat; }
+                        let badgeClass = 'badge-info';
+                        let label = 'Peringkat ' + peringkat;
+                        if (peringkat === 1) { badgeClass = 'badge-warning'; label = 'Juara 1'; }
+                        else if (peringkat === 2) { badgeClass = 'badge-secondary'; label = 'Juara 2'; }
+                        else if (peringkat === 3) { badgeClass = 'badge-success'; label = 'Juara 3'; }
+
+                        const kategoriDT = s.kategori_dt || '-';
+                        const warnaBadgeDT = warnaDT[kategoriDT] || 'badge-secondary';
 
                         rowsHtml +=
                             '<tr>' +
-                            '<td>' + (idx + 1) + '</td>' +
+                            '<td><span class="badge ' + badgeClass + '">' + label + '</span></td>' +
                             '<td>' + (s.nama || '-') + '</td>' +
                             '<td>' + (s.kelas || '-') + '</td>' +
-                            '<td><span class="badge ' + badgeClass + '">' + label + '</span></td>' +
+                            '<td><span class="badge ' + warnaBadgeDT + '">' + kategoriDT + '</span></td>' +
                             '<td><strong>' + (s.skor_total || 0) + '</strong></td>' +
                             '</tr>';
                     });
@@ -598,7 +607,7 @@ $(function () {
                         '<strong>Tanggal:</strong> ' + new Date().toLocaleDateString('id-ID') +
                         (rowsHtml
                             ? '<div class="table-responsive mt-2"><table class="table table-sm table-bordered mb-0" style="font-size:12px;">' +
-                            '<thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Peringkat</th><th>Skor</th></tr></thead>' +
+                            '<thead><tr><th>Peringkat</th><th>Nama</th><th>Kelas</th><th>Kategori DT</th><th>Skor</th></tr></thead>' +
                             '<tbody>' + rowsHtml + '</tbody></table></div>'
                             : '')
                     );

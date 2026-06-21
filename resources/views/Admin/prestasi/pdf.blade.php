@@ -86,11 +86,42 @@
                 <td class="text-center">
                     @if(count($data) > 0)
                         {{ number_format($data->avg('skor_total'), 2) }}
-                    @else
-                        0
-                    @endif
+                    @else 0 @endif
                 </td>
             </tr>
+        </table>
+
+        {{-- Tambahan: ringkasan kategori DT --}}
+        @php
+            $kategoriGroup = $data->groupBy('kategori_dt')->map->count();
+            $urutan = [
+                'Berprestasi Unggul',
+                'Berprestasi Baik',
+                'Berkembang Sesuai Harapan',
+                'Berkembang dengan Bimbingan',
+                'Memerlukan Pembinaan Khusus',
+            ];
+        @endphp
+        <table class="table" style="margin-top:5px;">
+            <thead>
+                <tr>
+                    <th colspan="2">Distribusi Kategori Decision Tree</th>
+                </tr>
+                <tr>
+                    <th>Kategori</th>
+                    <th>Jumlah Siswa</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($urutan as $kat)
+                    @if(isset($kategoriGroup[$kat]))
+                    <tr>
+                        <td>{{ $kat }}</td>
+                        <td class="text-center">{{ $kategoriGroup[$kat] }}</td>
+                    </tr>
+                    @endif
+                @endforeach
+            </tbody>
         </table>
     </div>
 
@@ -205,8 +236,8 @@
             <td width="50%">
                 Cipeundeuy, {{ date('d F Y') }}<br>
                 Wakasek Kurikulum
-                <div class="signature-line">Dahya, S.Pd.I.</div>
-                <div style="font-size:9px;">NIP. 196604052014121002</div>
+                <div class="signature-line">Ida Ariswati, M.Pd.</div>
+                <div style="font-size:9px;">NIP. 197104071994122001</div>
             </td>
         </tr>
     </table>

@@ -173,6 +173,7 @@
                         <th width="12%" class="text-center">Nilai Rata-rata</th>
                         <th width="12%" class="text-center">Kehadiran</th>
                         <th width="10%" class="text-center">Sikap</th>
+                        <th width="12%" class="text-center">Kategori DT</th>
                         <th width="12%" class="text-center">Skor Total</th>
                     </tr>
                 </thead>
@@ -218,6 +219,22 @@
                                     else $sikapHuruf = 'E';
                                 @endphp
                                 {{ $sikapHuruf }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            @php
+                                $warnaDT = [
+                                    'Berprestasi Unggul'          => 'badge-primary',
+                                    'Berprestasi Baik'            => 'badge-success',
+                                    'Berkembang Sesuai Harapan'   => 'badge-info',
+                                    'Berkembang dengan Bimbingan' => 'badge-warning',
+                                    'Memerlukan Pembinaan Khusus' => 'badge-danger',
+                                ];
+                                $kategori = $item->kategori_dt ?? '-';
+                                $warnaBadge = $warnaDT[$kategori] ?? 'badge-secondary';
+                            @endphp
+                            <span class="badge {{ $warnaBadge }} p-1" style="font-size:10px;">
+                                {{ $kategori }}
                             </span>
                         </td>
                         <td class="text-center">
