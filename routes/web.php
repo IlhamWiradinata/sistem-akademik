@@ -54,7 +54,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('/ubahpassword', [AdminController::class, 'updatePassword'])->name('update.password');
 
     // Seaarch Navbar
-    Route::get('/search', [SearchController::class, 'adminIndex'])->name('searchAdmin');
+    Route::get('/search', [SearchController::class, 'adminSearch'])->name('searchAdmin');
 
     // Data Akademik Kelas
     Route::get('/kelas', [DataAkademikController::class, 'dataKelas'])->name('DataKelas');

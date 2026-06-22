@@ -149,7 +149,7 @@
                         </td>
                         <td class="text-center siswa-nis">
                             @if($row->siswaProfile && $row->siswaProfile->nis)
-                                <span class="badge badge-secondary">{{ $row->siswaProfile->nis }}</span>
+                                <span class="badge badge-primary">{{ $row->siswaProfile->nis }}</span>
                             @else
                                 <span class="badge badge-light">-</span>
                             @endif

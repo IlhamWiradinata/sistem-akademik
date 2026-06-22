@@ -95,11 +95,11 @@
         @php
             $kategoriGroup = $data->groupBy('kategori_dt')->map->count();
             $urutan = [
-                'Berprestasi Unggul',
-                'Berprestasi Baik',
-                'Berkembang Sesuai Harapan',
-                'Berkembang dengan Bimbingan',
-                'Memerlukan Pembinaan Khusus',
+                'Sangat Baik',
+                'Baik',
+                'Cukup',
+                'Kurang',
+                'Perlu Pembinaan',
             ];
         @endphp
         <table class="table" style="margin-top:5px;">

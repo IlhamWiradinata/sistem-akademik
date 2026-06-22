@@ -141,7 +141,7 @@
                         </td>
                         <td class="text-center guru-nip">
                             @if($row->guruProfile && $row->guruProfile->nip)
-                                <span class="badge badge-secondary">{{ $row->guruProfile->nip }}</span>
+                                <span class="badge badge-primary">{{ $row->guruProfile->nip }}</span>
                             @else
                                 <span class="badge badge-light">-</span>
                             @endif

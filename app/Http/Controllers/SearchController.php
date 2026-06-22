@@ -11,7 +11,7 @@ use App\Models\Jurusan;
 
 class SearchController extends Controller
 {
-    public function adminIndex(Request $request)
+    public function adminSearch(Request $request)
     {
         $query = $request->input('q', '');
 

@@ -292,7 +292,6 @@
 @push('scripts')
 <script>
 $(function () {
-
     // ============================================================
     //  HELPER: set progress bar
     // ============================================================
@@ -403,11 +402,11 @@ $(function () {
 
                 let katHtml = '';
                 const warna = {
-                     'Berprestasi Unggul'          : 'badge-primary',
-                     'Berprestasi Baik'            : 'badge-success',
-                     'Berkembang Sesuai Harapan'   : 'badge-info',
-                     'Berkembang dengan Bimbingan' : 'badge-warning',
-                     'Memerlukan Pembinaan Khusus' : 'badge-danger'
+                    'Sangat Baik'      : 'badge-primary',
+                    'Baik'             : 'badge-success',
+                    'Cukup'            : 'badge-info',
+                    'Kurang'           : 'badge-warning',
+                    'Perlu Pembinaan'  : 'badge-danger'
                 };
                 $.each(katCount, function (k, v) {
                     katHtml += '<span class="badge ' + (warna[k] || 'badge-secondary') + ' mr-1">'
@@ -572,11 +571,11 @@ $(function () {
                     // Bangun tabel 10 besar mini
                     // SESUDAH
                     const warnaDT = {
-                        'Berprestasi Unggul'          : 'badge-primary',
-                        'Berprestasi Baik'            : 'badge-success',
-                        'Berkembang Sesuai Harapan'   : 'badge-info',
-                        'Berkembang dengan Bimbingan' : 'badge-warning',
-                        'Memerlukan Pembinaan Khusus' : 'badge-danger'
+                        'Sangat Baik'      : 'badge-primary',
+                        'Baik'             : 'badge-success',
+                        'Cukup'            : 'badge-info',
+                        'Kurang'           : 'badge-warning',
+                        'Perlu Pembinaan'  : 'badge-danger'
                     };
 
                     let rowsHtml = '';

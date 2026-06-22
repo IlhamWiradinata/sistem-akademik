@@ -19,22 +19,19 @@ class PrestasiSiswaController extends Controller
     //  Komponen penilaian dan bobotnya:
     //    - Nilai Akademik (rata-rata) >= 75   → bobot 50%
     //    - Persentase Kehadiran       >= 75%  → bobot 30%
-    //    - Nilai Sikap/Perilaku       >= 75   → bobot 20%
-    //      (skala sikap: A=90, B=75, C=60, D=45, E=30;
-    //       ambang batas 75 berarti minimal predikat B)
+    //    - Nilai Sikap/Perilaku       >= 80   → bobot 20%
+    //      (skala sikap: A=90, B=80, C=70, D=60, E=50;
+    //       ambang batas 80 berarti minimal predikat B)
     //
     //  SKOR AKHIR (skor_dt / skor_total, rentang 0-100):
-    //  Setiap kategori hasil pohon keputusan diberi rentang skor
-    //  tersendiri (selebar 20 poin) agar urutan kategori selalu
-    //  konsisten dengan rentang skor_total-nya. Skor proporsional
-    //  (hasil perhitungan bobot 50/30/20 atas nilai aktual siswa)
-    //  digunakan sebagai posisi relatif di dalam rentang kategori
-    //  tersebut, sehingga berfungsi sebagai pembeda (tie-breaker)
-    //  yang konsisten secara makna.
+    //  Skor dihitung secara proporsional berdasarkan bobot:
+    //    skor = (nilai/100)*50 + (hadir/100)*30 + (perilaku/100)*20
+    //  Skor ini digunakan sebagai pembeda (tie-breaker) dan juga
+    //  sebagai nilai numerik yang mencerminkan capaian siswa.
     // =========================================================
     private const DT_NILAI_THR    = 75;
     private const DT_HADIR_THR    = 75;
-    private const DT_PERILAKU_THR = 75;   // setara predikat B atau lebih tinggi
+    private const DT_PERILAKU_THR = 80;   // setara predikat B atau lebih tinggi
 
     private const BOBOT_NILAI    = 0.50;
     private const BOBOT_HADIR    = 0.30;
@@ -44,85 +41,94 @@ class PrestasiSiswaController extends Controller
     //  Kategori Hasil Decision Tree (Predikat Capaian Siswa)
     //
     //  Predikat disusun mengikuti istilah laporan capaian belajar
-    //  yang umum digunakan di lingkungan pendidikan formal, dengan
-    //  penekanan pada aspek perkembangan siswa.
+    //  yang umum digunakan di lingkungan pendidikan formal.
     //
     //  Urutan dari predikat tertinggi ke terendah:
-    //    1. Berprestasi Unggul          (rentang skor 80-100)
-    //    2. Berprestasi Baik             (rentang skor 60-80)
-    //    3. Berkembang Sesuai Harapan    (rentang skor 40-60)
-    //    4. Berkembang dengan Bimbingan  (rentang skor 20-40)
-    //    5. Memerlukan Pembinaan Khusus  (rentang skor 0-20)
+    //    1. Sangat Baik
+    //    2. Baik
+    //    3. Cukup
+    //    4. Kurang
+    //    5. Perlu Pembinaan
+    //
+    //  Rentang skor_total (hanya untuk referensi, tidak mempengaruhi
+    //  perhitungan skor aktual):
+    //    - Sangat Baik      : 90-100
+    //    - Baik             : 80-90
+    //    - Cukup            : 70-80
+    //    - Kurang           : 60-70
+    //    - Perlu Pembinaan  : 0-60
     // =========================================================
-    private const KATEGORI_UNGGUL              = 'Berprestasi Unggul';
-    private const KATEGORI_BAIK                = 'Berprestasi Baik';
-    private const KATEGORI_SESUAI_HARAPAN      = 'Berkembang Sesuai Harapan';
-    private const KATEGORI_DENGAN_BIMBINGAN    = 'Berkembang dengan Bimbingan';
-    private const KATEGORI_PEMBINAAN_KHUSUS    = 'Memerlukan Pembinaan Khusus';
+    private const KATEGORI_SANGAT_BAIK      = 'Sangat Baik';
+    private const KATEGORI_BAIK             = 'Baik';
+    private const KATEGORI_CUKUP            = 'Cukup';
+    private const KATEGORI_KURANG           = 'Kurang';
+    private const KATEGORI_PERLU_PEMBINAAN  = 'Perlu Pembinaan';
 
-    // Rentang skor_total untuk masing-masing kategori (lebar 20 poin)
+    // Rentang skor_total untuk masing-masing kategori (hanya referensi)
     private const RANGE_KATEGORI = [
-        self::KATEGORI_PEMBINAAN_KHUSUS => [0, 20],
-        self::KATEGORI_DENGAN_BIMBINGAN => [20, 40],
-        self::KATEGORI_SESUAI_HARAPAN   => [40, 60],
-        self::KATEGORI_BAIK             => [60, 80],
-        self::KATEGORI_UNGGUL           => [80, 100],
+        self::KATEGORI_PERLU_PEMBINAAN  => [0, 60],
+        self::KATEGORI_KURANG           => [60, 70],
+        self::KATEGORI_CUKUP            => [70, 80],
+        self::KATEGORI_BAIK             => [80, 90],
+        self::KATEGORI_SANGAT_BAIK      => [90, 100],
     ];
 
     // =========================================================
     //  Decision Tree: tiga simpul keputusan bertingkat
     //  menghasilkan kategori (predikat) dan skor akhir (0-100)
     //
-    //  Struktur pohon keputusan:
+    //  Struktur pohon keputusan aktual (sesuai implementasi):
     //
     //            [Nilai >= 75?]
     //           /              \
-    //         Tidak              Ya
-    //   [Hadir >= 75?]       [Hadir >= 75?]
-    //    /         \            /        \
-    //  Tidak       Ya         Tidak       Ya
-    //   |           |           |     [Sikap >= B?]
-    //  Memerlukan  [Sikap     Berkembang   /        \
-    //  Pembinaan    >= B?]    dengan    Berprestasi  Berprestasi
-    //  Khusus      /     \   Bimbingan    Baik         Unggul
-    //          Berkembang  Berkembang
-    //          dengan      Sesuai
-    //          Bimbingan   Harapan
+    //         Tidak             Ya
+    //   [Hadir >= 75?]      [Hadir >= 75?]
+    //    /         \          /         \
+    //  Tidak       Ya       Tidak        Ya
+    //   |           |         |      [Sikap >= B?]
+    //  Perlu      [Sikap     Kurang   /        \
+    //  Pembinaan   >= B?]            Ya        Tidak
+    //  Khusus     /     \        Sangat      Baik
+    //          Cukup   Kurang    Baik
     // =========================================================
     private function decisionTree(float $nilai, float $hadir, float $perilaku): array
-{
-    $nilaiOk    = $nilai    >= self::DT_NILAI_THR;
-    $hadirOk    = $hadir    >= self::DT_HADIR_THR;
-    $perilakuOk = $perilaku >= self::DT_PERILAKU_THR;
+    {
+        $nilaiOk    = $nilai    >= self::DT_NILAI_THR;
+        $hadirOk    = $hadir    >= self::DT_HADIR_THR;
+        $perilakuOk = $perilaku >= self::DT_PERILAKU_THR;
 
-    // Penentuan kategori — tidak berubah
-    if (!$nilaiOk && !$hadirOk) {
-        $kategori = self::KATEGORI_PEMBINAAN_KHUSUS;
-    } elseif (!$nilaiOk && $hadirOk) {
-        $kategori = $perilakuOk ? self::KATEGORI_SESUAI_HARAPAN : self::KATEGORI_DENGAN_BIMBINGAN;
-    } elseif ($nilaiOk && !$hadirOk) {
-        $kategori = self::KATEGORI_DENGAN_BIMBINGAN;
-    } else {
-        $kategori = $perilakuOk ? self::KATEGORI_UNGGUL : self::KATEGORI_BAIK;
+        // Penentuan kategori prestasi siswa
+        if (!$nilaiOk && !$hadirOk) {
+            $kategori = self::KATEGORI_PERLU_PEMBINAAN;
+        } elseif (!$nilaiOk && $hadirOk) {
+            $kategori = $perilakuOk
+                ? self::KATEGORI_CUKUP
+                : self::KATEGORI_KURANG;
+        } elseif ($nilaiOk && !$hadirOk) {
+            $kategori = self::KATEGORI_KURANG;
+        } else {
+            $kategori = $perilakuOk
+                ? self::KATEGORI_SANGAT_BAIK
+                : self::KATEGORI_BAIK;
+        }
+
+        // Skor proporsional murni berdasarkan bobot — tanpa rentang kategori
+        // Nilai dan kehadiran dibagi 100, perilaku sudah dalam skala 0-100
+        $skorDT = round(
+            ($nilai    / 100 * self::BOBOT_NILAI    * 100) +
+            ($hadir    / 100 * self::BOBOT_HADIR    * 100) +
+            ($perilaku / 100 * self::BOBOT_PERILAKU * 100),
+            2
+        );
+
+        return [
+            'kategori'    => $kategori,
+            'skor_dt'     => $skorDT,
+            'nilai_ok'    => $nilaiOk,
+            'hadir_ok'    => $hadirOk,
+            'perilaku_ok' => $perilakuOk,
+        ];
     }
-
-    // Skor proporsional murni berdasarkan bobot — tanpa rentang kategori
-    // Nilai dan kehadiran dibagi 100, perilaku sudah dalam skala 0-100
-    $skorDT = round(
-        ($nilai    / 100 * self::BOBOT_NILAI    * 100) +
-        ($hadir    / 100 * self::BOBOT_HADIR    * 100) +
-        ($perilaku / 100 * self::BOBOT_PERILAKU * 100),
-        2
-    );
-
-    return [
-        'kategori'    => $kategori,
-        'skor_dt'     => $skorDT,
-        'nilai_ok'    => $nilaiOk,
-        'hadir_ok'    => $hadirOk,
-        'perilaku_ok' => $perilakuOk,
-    ];
-}
 
     // =========================================================
     //  Bantuan: ekstraksi tingkat kelas dari nama_kelas
@@ -178,10 +184,10 @@ class PrestasiSiswaController extends Controller
         // Konversi huruf → angka untuk decision tree
         $nilaiPerilaku = match($sikapHuruf) {
             'A'     => 90.0,
-            'B'     => 75.0,
-            'C'     => 60.0,
-            'D'     => 45.0,
-            default => 30.0,
+            'B'     => 80.0,
+            'C'     => 70.0,
+            'D'     => 60.0,
+            default => 50.0,
         };
 
         // 4. Decision tree
@@ -203,9 +209,9 @@ class PrestasiSiswaController extends Controller
     private function numericToSikapLetter(float $nilai): string
     {
         if ($nilai >= 90) return 'A';
-        if ($nilai >= 75) return 'B';
-        if ($nilai >= 60) return 'C';
-        if ($nilai >= 45) return 'D';
+        if ($nilai >= 80) return 'B';
+        if ($nilai >= 70) return 'C';
+        if ($nilai >= 60) return 'D';
         return 'E';
     }
 
@@ -260,11 +266,11 @@ class PrestasiSiswaController extends Controller
     private function kategoriOrder(): array
     {
         return [
-            self::KATEGORI_UNGGUL           => 5,
-            self::KATEGORI_BAIK             => 4,
-            self::KATEGORI_SESUAI_HARAPAN   => 3,
-            self::KATEGORI_DENGAN_BIMBINGAN => 2,
-            self::KATEGORI_PEMBINAAN_KHUSUS => 1,
+            self::KATEGORI_SANGAT_BAIK     => 5,
+            self::KATEGORI_BAIK            => 4,
+            self::KATEGORI_CUKUP           => 3,
+            self::KATEGORI_KURANG          => 2,
+            self::KATEGORI_PERLU_PEMBINAAN => 1,
         ];
     }
 
@@ -378,8 +384,8 @@ class PrestasiSiswaController extends Controller
                         'nilai_rata_rata'      => $data['nilai_rata_rata'],
                         'persentase_kehadiran' => $data['persentase_kehadiran'],
                         'nilai_perilaku'       => $data['nilai_perilaku'],
-                        'sikap'                => $data['sikap'] ?? '-',  // tambahkan ini jika belum ada
-                        'kategori_dt'          => $data['kategori_dt'],  // pastikan ini ada
+                        'sikap'                => $data['sikap'] ?? '-',
+                        'kategori_dt'          => $data['kategori_dt'],
                         'skor_total'           => $data['skor_total'],
                         'jumlah_mapel'         => $data['jumlah_mapel'],
                         'status'               => 'aktif',
@@ -495,7 +501,6 @@ class PrestasiSiswaController extends Controller
 
             // Untuk setiap siswa, ambil skor terbaik (jika terdaftar di lebih dari satu kelas)
             $juaraMap = [];
-            // SESUDAH
             foreach ($semuaRanking as $p) {
                 $key = $p->siswa_id;
                 if (!isset($juaraMap[$key]) || (float)$p->skor_total > $juaraMap[$key]['skor_total']) {
