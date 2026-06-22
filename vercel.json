@@ -1,36 +1,47 @@
 {
   "version": 2,
-  "framework": null,
-  "buildCommand": "",
-  "functions": {
-    "api/index.php": {
-      "runtime": "vercel-php@0.6.0"
-    }
-  },
-  "routes": [
+  "builds": [
     {
-      "src": "/(.*)",
-      "dest": "/api/index.php"
+      "src": "public/index.php",
+      "use": "vercel-php@0.9.0"
+    },
+    {
+      "src": "public/template/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/storage/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/favicon.ico",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/robots.txt",
+      "use": "@vercel/static"
     }
   ],
-
-  "env": {
-    "APP_ENV": "Laravel",
-    "APP_DEBUG": "false",
-    "APP_URL": "https://sistem-akademik-three.vercel.app",
-    "SESSION_SECURE_COOKIE": "true",
-    "APP_CONFIG_CACHE": "/tmp/config.php",
-    "APP_EVENTS_CACHE": "/tmp/events.php",
-    "APP_PACKAGES_CACHE": "/tmp/packages.php",
-    "APP_ROUTES_CACHE": "/tmp/routes.php",
-    "APP_SERVICES_CACHE": "/tmp/services.php",
-    "VIEW_COMPILED_PATH": "/tmp/views",
-    "SESSION_DRIVER": "redis",
-    "REDIS_CLIENT": "predis",
-    "REDIS_DB": "0",
-    "REDIS_CACHE_DB": "0",
-    "CACHE_DRIVER": "redis",
-    "CACHE_STORE": "redis",
-    "LOG_CHANNEL": "stderr"
-  }
+  "routes": [
+    {
+      "src": "/template/(.*)",
+      "dest": "/public/template/$1"
+    },
+    {
+      "src": "/storage/(.*)",
+      "dest": "/public/storage/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/public/robots.txt"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "public/index.php"
+    }
+  ]
 }
