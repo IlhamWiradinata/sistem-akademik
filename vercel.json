@@ -8,16 +8,16 @@
     }
   },
   "routes": [
-    { "handle": "filesystem" },
     {
       "src": "/(.*)",
       "dest": "/api/index.php"
     }
   ],
+
   "env": {
-    "APP_ENV": "production",
+    "APP_ENV": "Laravel",
     "APP_DEBUG": "false",
-    "APP_URL": "https://your-app.vercel.app",
+    "APP_URL": "https://sistem-akademik-three.vercel.app",
     "SESSION_SECURE_COOKIE": "true",
     "APP_CONFIG_CACHE": "/tmp/config.php",
     "APP_EVENTS_CACHE": "/tmp/events.php",

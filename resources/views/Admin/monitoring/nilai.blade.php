@@ -1,4 +1,4 @@
-@extends('layouts.layoutsadmin.app')
+@extends('Layouts.LayoutsAdmin.app')
 
 @section('title')
 <title>Sistem Akademik - Monitoring Nilai</title>

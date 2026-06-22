@@ -1,4 +1,4 @@
-@extends('layouts.layoutsguru.app')
+@extends('Layouts.LayoutsGuru.app')
 
 @section('title')
 <title>Laporan Akademik Siswa</title>

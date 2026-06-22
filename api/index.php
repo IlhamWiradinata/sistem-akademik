@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 define('LARAVEL_START', microtime(true));
 
 // Tentukan lokasi folder Laravel (misal di dalam folder "resource")
-$appPath = __DIR__.'/../resource';
+$appPath = __DIR__.'/../resource/views/Auth/login.blade.php';
 
 // Maintenance mode
 if (file_exists($maintenance = $appPath.'/storage/framework/maintenance.php')) {

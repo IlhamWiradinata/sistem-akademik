@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('Layouts.app')
 
 @section('title', 'Lupa Password - SMK Negeri 1 Cipeundeuy')
 

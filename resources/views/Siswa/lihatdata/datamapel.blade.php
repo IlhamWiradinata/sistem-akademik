@@ -1,4 +1,4 @@
-    @extends('layouts.layoutssiswa.app')
+    @extends('Layouts.LayoutsSiswa.app')
 
     @section('title')
     <title> Sistem Akademik - Jadwal Mata Pelajaran </title>

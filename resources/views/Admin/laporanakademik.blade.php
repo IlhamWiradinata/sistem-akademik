@@ -1,4 +1,4 @@
-@extends('layouts.layoutsadmin.app')
+@extends('Layouts.LayoutsAdmin.app')
 
 @section('title')
 <title>Sistem Akademik - Laporan Akademik</title>
@@ -594,7 +594,7 @@
                                             </label>
                                             <textarea name="catatan_sikap" class="form-control" rows="4" placeholder="...">{{ $laporanSiswa->catatan_sikap ?? '' }}</textarea>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label class="font-weight-bold">
                                                 <i class="fas fa-check-circle text-info"></i> Kesimpulan

@@ -1,4 +1,4 @@
-@extends('layouts.layoutsadmin.app')
+@extends('Layouts.LayoutsAdmin.app')
 
 @section('title')
 <title> Hasil Pencarian - Sistem Akademik </title>

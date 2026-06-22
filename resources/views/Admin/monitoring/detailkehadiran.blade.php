@@ -1,4 +1,4 @@
-@extends('layouts.layoutsadmin.app')
+@extends('Layouts.LayoutsAdmin.app')
 
 @section('title')
 <title>Detail Kehadiran Siswa - {{ $siswa->user->name }}</title>
@@ -410,7 +410,7 @@
             </table>
         </div>
     </div>
-    
+
 </div>
 
 <!-- Modal Tambah Kehadiran -->

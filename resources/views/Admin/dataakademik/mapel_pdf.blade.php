@@ -251,13 +251,13 @@
             <tr>
                 <td width="50%">
                     Mengetahui,<br>Kepala Sekolah
-                    <div class="signature-name">_________________________</div>
+                    <div class="signature-name">Agus Kusnadi, S.Pd., M.Pd.</div>
                     <div style="font-size: 9px; margin-top: 5px;">NIP. ___________________</div>
                 </td>
                 <td width="50%">
                     Cipeundeuy, {{ date('d F Y') }}<br>Waka Kurikulum
-                    <div class="signature-name">_________________________</div>
-                    <div style="font-size: 9px; margin-top: 5px;">NIP. ___________________</div>
+                    <div class="signature-name">Ida Ariswati, M.Pd.</div>
+                    <div style="font-size: 9px; margin-top: 5px;">NIP. 197104071994122001</div>
                 </td>
             </tr>
         </table>

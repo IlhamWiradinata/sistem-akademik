@@ -1,4 +1,4 @@
-@extends('layouts.layoutsadmin.app')
+@extends('Layouts.LayoutsAdmin.app')
 
 @section('title')
 <title>Sistem Akademik - Input Kehadiran</title>
@@ -218,7 +218,7 @@
                     <button type="submit" class="btn btn-primary float-right">
                         <i class="fas fa-save"></i> Simpan Kehadiran
                     </button>
-                    <a href="{{ route('kehadiran.index') }}" class="btn btn-secondary float-right mr-2">
+                    <a href="{{ route('detail-kehadiran') }}" class="btn btn-secondary float-right mr-2">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 </div>
