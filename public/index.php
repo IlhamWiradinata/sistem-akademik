@@ -1,5 +1,8 @@
 <?php
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+// Alihkan storage dan cache ke /tmp agar bisa ditulis
+putenv("APP_STORAGE_PATH=/tmp/storage");
+putenv("APP_BOOTSTRAP_CACHE_PATH=/tmp/cache");
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
