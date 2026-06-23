@@ -42,7 +42,7 @@ return [
             'synchronous' => null,
         ],
 
-        'mysql' => [
+                'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
@@ -57,9 +57,9 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            // PERBAIKAN: ganti PDO::MYSQL_ATTR_SSL_CA dengan \PDO\Mysql::ATTR_SSL_CA
+            // PERBAIKAN dengan kondisional (aman untuk PHP 8.3 dan 8.4+)
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                \PDO\Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                (class_exists('PDO\Mysql') ? \PDO\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 
@@ -78,9 +78,9 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            // PERBAIKAN: sama seperti di mysql
+            // PERBAIKAN dengan kondisional (aman untuk PHP 8.3 dan 8.4+)
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                \PDO\Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                (class_exists('PDO\Mysql') ? \PDO\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 
