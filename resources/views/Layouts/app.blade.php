@@ -6,6 +6,7 @@
     <title>@yield('title', 'Sistem Akademik')</title>
     <link href="{{ asset('template/css/login.css')}}" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
 </head>
 <body>
     @yield('content')
