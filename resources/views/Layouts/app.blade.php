@@ -10,5 +10,6 @@
 <body>
     @yield('content')
     <script src="{{ asset('template/js/login.js') }}"></script>
+    @vite('resources/js/app.js')
 </body>
 </html>

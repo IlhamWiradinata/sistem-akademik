@@ -74,5 +74,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @yield('scripts')
 @stack('scripts')
+    @vite('resources/js/app.js')
 </body>
 </html>

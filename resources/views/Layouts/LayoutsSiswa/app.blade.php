@@ -71,5 +71,6 @@
     <script src="{{ asset('template/js/chart-dashboard.js') }}"></script>
     
 @stack('scripts')
+    @vite('resources/js/app.js')
 </body>
 </html>
