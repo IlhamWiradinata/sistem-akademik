@@ -67,5 +67,6 @@
     <script src="{{ asset('template/js/sb-admin-2.min.js') }}"></script>
     
 @stack('scripts')
+    @vite('resources/js/app.js')
 </body>
 </html>
