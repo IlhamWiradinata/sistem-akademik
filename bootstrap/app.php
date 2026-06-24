@@ -20,23 +20,26 @@ $app = Application::configure(basePath: dirname(__DIR__))
     })->create();
 
 // ============================================================
-// OVERRIDE PATH UNTUK VERCEL (SEBELUM SERVICE PROVIDER DIREGISTER)
+// OVERRIDE PATH UNTUK VERCEL (READ-ONLY FILESYSTEM)
 // ============================================================
 if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
-    // Buat direktori di /tmp (jika belum ada)
     $tmpBootstrap = '/tmp/bootstrap';
     $tmpCache = $tmpBootstrap . '/cache';
     $tmpStorage = '/tmp/storage';
 
+    // Buat semua direktori yang diperlukan
     if (!is_dir($tmpBootstrap)) mkdir($tmpBootstrap, 0755, true);
     if (!is_dir($tmpCache)) mkdir($tmpCache, 0755, true);
     if (!is_dir($tmpStorage)) mkdir($tmpStorage, 0755, true);
     if (!is_dir($tmpStorage . '/logs')) mkdir($tmpStorage . '/logs', 0755, true);
-    if (!is_dir($tmpCache . '/views')) mkdir($tmpCache . '/views', 0755, true);
+    if (!is_dir($tmpStorage . '/framework')) mkdir($tmpStorage . '/framework', 0755, true);
+    if (!is_dir($tmpStorage . '/framework/views')) mkdir($tmpStorage . '/framework/views', 0755, true); // <-- PENTING!
+    if (!is_dir($tmpStorage . '/framework/cache')) mkdir($tmpStorage . '/framework/cache', 0755, true);
+    if (!is_dir($tmpStorage . '/framework/sessions')) mkdir($tmpStorage . '/framework/sessions', 0755, true);
 
-    // Path override
-    $app->useBootstrapPath('/tmp/bootstrap');
-    $app->useStoragePath('/tmp/storage');
+    // Override path di Laravel
+    $app->useBootstrapPath($tmpBootstrap);
+    $app->useStoragePath($tmpStorage);
 }
 
 return $app;
