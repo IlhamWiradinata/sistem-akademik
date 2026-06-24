@@ -9,17 +9,22 @@ if (isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || getenv('VERCEL')) {
     // Buat direktori di /tmp
     $tmpStorage = '/tmp/storage';
     $tmpCache   = '/tmp/bootstrap/cache';
+    $tmpManifest = '/tmp/packages.php'; // <-- TAMBAHKAN INI
 
     if (!is_dir($tmpStorage)) mkdir($tmpStorage, 0755, true);
     if (!is_dir($tmpStorage . '/logs')) mkdir($tmpStorage . '/logs', 0755, true);
     if (!is_dir($tmpCache)) mkdir($tmpCache, 0755, true);
 
+    // Set environment variables
     putenv("APP_STORAGE_PATH={$tmpStorage}");
     putenv("APP_BOOTSTRAP_CACHE_PATH={$tmpCache}");
+    putenv("PACKAGE_MANIFEST_PATH={$tmpManifest}"); // <-- TAMBAHKAN INI
     $_ENV['APP_STORAGE_PATH'] = $tmpStorage;
     $_ENV['APP_BOOTSTRAP_CACHE_PATH'] = $tmpCache;
+    $_ENV['PACKAGE_MANIFEST_PATH'] = $tmpManifest; // <-- TAMBAHKAN INI
     $_SERVER['APP_STORAGE_PATH'] = $tmpStorage;
     $_SERVER['APP_BOOTSTRAP_CACHE_PATH'] = $tmpCache;
+    $_SERVER['PACKAGE_MANIFEST_PATH'] = $tmpManifest; // <-- TAMBAHKAN INI
 }
 
 // ============================================================
