@@ -12,14 +12,6 @@
     {
       "src": "public/storage/**",
       "use": "@vercel/static"
-    },
-    {
-      "src": "public/favicon.ico",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "public/robots.txt",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -30,14 +22,6 @@
     {
       "src": "/storage/(.*)",
       "dest": "/public/storage/$1"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/public/favicon.ico"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/public/robots.txt"
     },
     {
       "src": "/(.*)",
