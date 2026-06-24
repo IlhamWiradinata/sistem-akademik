@@ -8,20 +8,12 @@
     {
       "src": "public/template/**",
       "use": "@vercel/static"
-    },
-    {
-      "src": "public/storage/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/template/(.*)",
       "dest": "/public/template/$1"
-    },
-    {
-      "src": "/storage/(.*)",
-      "dest": "/public/storage/$1"
     },
     {
       "src": "/(.*)",
