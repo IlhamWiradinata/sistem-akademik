@@ -7,6 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Moch TBG Ilham Ramdhan Wiradinata">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     @yield('title')
 
